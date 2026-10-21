@@ -1536,6 +1536,24 @@ open class CameraActivity : AppCompatActivity(R.layout.activity_camera) {
                                 ResolutionSelector.PREFER_CAPTURE_RATE_OVER_HIGHER_RESOLUTION
                             }
                         )
+                        .apply {
+                            // CameraX's stream combination search picks a smaller JPEG size next
+                            // to the preview although the largest one is supported (emerald:
+                            // 4096x3072 instead of the full 4624x3472 sensor). With high
+                            // resolution enabled, only offer the largest size of the aspect ratio
+                            // the strategy put first (the list also holds fallback ratios).
+                            if (cameraConfiguration.enableHighResolution) {
+                                setResolutionFilter { sizes, _ ->
+                                    val first = sizes.firstOrNull() ?: return@setResolutionFilter sizes
+                                    // Sensor sizes aren't exact ratios (4624x3472 is 1.332).
+                                    val ratio = first.width.toFloat() / first.height
+                                    val sameRatio = sizes.filter {
+                                        abs(it.width.toFloat() / it.height - ratio) < ratio * 0.01f
+                                    }
+                                    listOfNotNull(sameRatio.maxByOrNull { it.width * it.height })
+                                }
+                            }
+                        }
                         .build()
 
                 CameraController.IMAGE_CAPTURE
