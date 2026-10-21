@@ -141,6 +141,19 @@ class Camera private constructor(
         }
     }
 
+    /**
+     * Whether the MediaTek HAL offers high frame rate streaming (HFPS), see
+     * [org.lineageos.aperture.ext.setMtkHfpsMode].
+     */
+    val supportsMtkHfps = Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && runCatching {
+        // Vendor tag, the lookup throws on devices that don't define it
+        camera2CameraInfo.getCameraCharacteristic(
+            CameraCharacteristics.Key(
+                "com.mediatek.streamingfeature.availableHfpsModes", IntArray::class.java
+            )
+        )
+    }.getOrNull()?.contains(1) == true
+
     val supportsZsl = cameraInfo.isZslSupported
 
     val cameraXCameraState = cameraInfo.cameraState.asFlow<CameraState>()

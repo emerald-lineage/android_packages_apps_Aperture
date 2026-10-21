@@ -91,6 +91,7 @@ import org.lineageos.aperture.ext.setDistortionCorrectionMode
 import org.lineageos.aperture.ext.setEdgeMode
 import org.lineageos.aperture.ext.setFrameRate
 import org.lineageos.aperture.ext.setHotPixelMode
+import org.lineageos.aperture.ext.setMtkHfpsMode
 import org.lineageos.aperture.ext.setNoiseReductionMode
 import org.lineageos.aperture.ext.setPadding
 import org.lineageos.aperture.ext.setShadingMode
@@ -1664,6 +1665,11 @@ open class CameraActivity : AppCompatActivity(R.layout.activity_camera) {
 
                         else -> null
                     } ?: VideoStabilizationMode.OFF
+                )
+                .setMtkHfpsMode(
+                    cameraConfiguration is CameraConfiguration.Video
+                            && cameraConfiguration.camera.supportsMtkHfps
+                            && (cameraConfiguration.videoFrameRate?.value ?: 0) > 30
                 )
                 .setEdgeMode(camera2Options.edgeMode)
                 .setNoiseReductionMode(camera2Options.noiseReductionMode)

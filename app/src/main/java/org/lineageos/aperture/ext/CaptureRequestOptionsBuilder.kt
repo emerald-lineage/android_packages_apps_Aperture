@@ -142,3 +142,20 @@ fun CaptureRequestOptions.Builder.setHotPixelMode(
         null -> null
     }
 )
+
+/**
+ * MediaTek high frame rate streaming (HFPS): their HAL only switches the sensor to a mode faster
+ * than 30 fps when this session parameter is set. Vendor tag, only enable it on cameras that
+ * advertise it ([org.lineageos.aperture.models.Camera.supportsMtkHfps]).
+ */
+@androidx.camera.camera2.interop.ExperimentalCamera2Interop
+fun CaptureRequestOptions.Builder.setMtkHfpsMode(
+    enabled: Boolean
+) = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+    setOrClearCaptureRequestOption(
+        CaptureRequest.Key("com.mediatek.streamingfeature.hfpsMode", Int::class.javaObjectType),
+        1.takeIf { enabled },
+    )
+} else {
+    this
+}
